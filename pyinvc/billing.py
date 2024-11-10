@@ -141,3 +141,25 @@ class Billing:
 
     def transactions_sync(self, *, invoice_id: int) -> Dict:
         return asyncio.run(self.transactions_async(invoice_id=invoice_id))
+    
+    async def wallet_create_async(self, credit: int):
+        return await self.request(
+            method=Billing.RequestMethod.POST.value,
+            url=f"{self.BASE_URL}/credit/wallet",
+            data={
+                "user_id": self.user_id,
+                "credit": credit
+            }
+        )
+        
+    def wallet_create_sync(self, credit: int):
+        return asyncio.run(self.wallet_create_async(credit))
+
+    async def wallet_detail_async(self):
+        return await self.request(
+            method=Billing.RequestMethod.GET.value,
+            url=f"{self.BASE_URL}/credit/{self.user_id}0"
+        )
+        
+    def wallet_detail_sync(self):
+        return asyncio.run(self.wallet_detail_async())
