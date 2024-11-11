@@ -163,3 +163,21 @@ class Billing:
         
     def wallet_detail_sync(self):
         return asyncio.run(self.wallet_detail_async())
+    
+    async def credit_transaction_create_async(self, amount: int, type: str, description: str = ""):
+        if type in {"credit", "debit"}:
+            return await self.request(
+                method=Billing.RequestMethod.POST,
+                url=f"{self.BASE_URL}/credit",
+                data={
+                    "user_id": self.user_id,
+                    "amount": amount,
+                    "description": description,
+                    "type": type
+                }
+            )
+            
+        raise ValueError("invalid type")
+    
+    def credit_transaction_create_sync(self, amount: str, type: str, description: str = ""):
+        return asyncio.run(self.credit_transaction_create_async(amount, type, description))
