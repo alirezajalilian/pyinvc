@@ -1,10 +1,10 @@
 [tool.poetry]
 name = "pyinvc"
-version = "0.2.0"
+version = "0.1.23"
 description = ""
-authors = ["Alireza <arg274@gmail.com>"]
+authors = ["Alireza <arg274@gmail.com>", "amirredhat <a.charehei@limoo.host>"]
 readme = "README.md"
-packages = [{include = "pyinvc"}]
+packages = [{ include = "pyinvc" }]
 
 [tool.poetry.dependencies]
 python = "^3.12"

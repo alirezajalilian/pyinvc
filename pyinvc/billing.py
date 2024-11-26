@@ -8,11 +8,10 @@ from decouple import config
 
 
 class Billing:
-    
     class RequestMethod(Enum):
         GET = 1
         POST = 2
-        DELETE = 3 
+        DELETE = 3
         PATCH = 4
         PUT = 5
 
@@ -29,7 +28,7 @@ class Billing:
             raise ValueError("The filters must be string type.")
 
         self.filters = f"&{filters}" if filters else ""
-        
+
     async def get(self, url: str, data: dict = None):
         async with httpx.AsyncClient() as client:
             response = await client.get(
@@ -39,7 +38,7 @@ class Billing:
             )
             response.raise_for_status()
             return response.json()
-    
+
     async def post(self, url: str, data: dict = None):
         async with httpx.AsyncClient() as client:
             response = await client.post(
@@ -49,17 +48,17 @@ class Billing:
             )
             response.raise_for_status()
             return response.json()
-        
-    async def request(self, url: str, method: int, data: dict):
+
+    async def request(self, url: str, method: int, data: dict = None):
         match method:
             case Billing.RequestMethod.GET.value:
                 return await self.get(url, data)
-            
+
             case Billing.RequestMethod.POST.value:
                 return await self.post(url, data)
 
     async def invoice_list_async(self) -> Dict:
-        return self.request(
+        return await self.request(
             method=Billing.RequestMethod.GET.value,
             url=f"{self.BASE_URL}/invoice?filters[business_user_id][$eq]={self.user_id}{self.filters}",
         )
@@ -141,7 +140,7 @@ class Billing:
 
     def transactions_sync(self, *, invoice_id: int) -> Dict:
         return asyncio.run(self.transactions_async(invoice_id=invoice_id))
-    
+
     async def wallet_create_async(self, credit: int):
         return await self.request(
             method=Billing.RequestMethod.POST.value,
@@ -151,7 +150,7 @@ class Billing:
                 "credit": credit
             }
         )
-        
+
     def wallet_create_sync(self, credit: int):
         return asyncio.run(self.wallet_create_async(credit))
 
@@ -160,24 +159,24 @@ class Billing:
             method=Billing.RequestMethod.GET.value,
             url=f"{self.BASE_URL}/credit/{self.user_id}0"
         )
-        
+
     def wallet_detail_sync(self):
         return asyncio.run(self.wallet_detail_async())
-    
-    async def credit_transaction_create_async(self, amount: int, type: str, description: str = ""):
+
+    async def credit_transaction_create_async(self, amount: int, type_: str, description: str = ""):
         if type in {"credit", "debit"}:
             return await self.request(
-                method=Billing.RequestMethod.POST,
+                method=Billing.RequestMethod.POST.value,
                 url=f"{self.BASE_URL}/credit",
                 data={
                     "user_id": self.user_id,
-                    "amount": amount,
+                    "amount": str(amount),
                     "description": description,
-                    "type": type
+                    "type": type_
                 }
             )
-            
+
         raise ValueError("invalid type")
-    
-    def credit_transaction_create_sync(self, amount: str, type: str, description: str = ""):
-        return asyncio.run(self.credit_transaction_create_async(amount, type, description))
+
+    def credit_transaction_create_sync(self, amount: int, type_: str, description: str = ""):
+        return asyncio.run(self.credit_transaction_create_async(amount, type_, description))
