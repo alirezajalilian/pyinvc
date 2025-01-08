@@ -179,7 +179,7 @@ class Billing:
     def credit_transaction_create_sync(self, amount: int, type_: str, description: str = ""):
         return asyncio.run(self.credit_transaction_create_async(amount, type_, description))
     
-    async def create_billable_async(
+    async def billable_create_async(
             self, 
             invoice_item_id: int, 
             amount: float, 
@@ -212,7 +212,7 @@ class Billing:
             }
         )
     
-    def create_billable_sync(
+    def billable_create_sync(
             self, 
             invoice_item_id: int, 
             amount: float, 
@@ -221,7 +221,7 @@ class Billing:
             ended_at: str
         ):
         return asyncio.run(
-            self.create_billable_async(
+            self.billable_create_async(
                 invoice_item_id, 
                 amount, 
                 description, 
@@ -230,7 +230,7 @@ class Billing:
             )
         )
 
-    async def pay_billable_async(self, invoice_item_id: int):
+    async def billable_pay_async(self, invoice_item_id: int):
         """ 
             URL : https://sample-domain/api/v1/billable/collect/pay
 
@@ -245,10 +245,10 @@ class Billing:
             }
         )
     
-    def pay_billable_sync(self, invoice_item_id: int):
-        return asyncio.run(self.pay_billable_async(invoice_item_id))
+    def billable_pay_sync(self, invoice_item_id: int):
+        return asyncio.run(self.billable_pay_async(invoice_item_id))
     
-    async def collect_billable_async(self, invoice_item_id: int):
+    async def billable_collect_async(self, invoice_item_id: int):
         """ 
             URL : https://sample-domain/api/v1/billable/collect
 
@@ -263,5 +263,5 @@ class Billing:
             }
         )
     
-    def collect_billable_sync(self, invoice_item_id: int):
-        return asyncio.run(self.collect_billable_async(invoice_item_id))
+    def billable_collect_sync(self, invoice_item_id: int):
+        return asyncio.run(self.billable_collect_async(invoice_item_id))
