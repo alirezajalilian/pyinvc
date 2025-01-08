@@ -178,3 +178,90 @@ class Billing:
 
     def credit_transaction_create_sync(self, amount: int, type_: str, description: str = ""):
         return asyncio.run(self.credit_transaction_create_async(amount, type_, description))
+    
+    async def create_billable_async(
+            self, 
+            invoice_item_id: int, 
+            amount: float, 
+            description: str, 
+            started_at: str, 
+            ended_at: str
+        ):
+        """
+            URL : https://sample-domain/api/v1/billable
+            Method : POST    
+
+            # Parameters:
+                - invoice_item_id = the id of invoice item  
+                - amount = the amount of billable
+                - description = the description of billable
+                - started_at = the start date of billable in string format
+                - ended_at = the end date of billable in string format
+        """ 
+
+        return await self.request(
+            url=f"{self.BASE_URL}/billable",
+            method=Billing.RequestMethod.POST.value,
+            data={
+                "invoice_item_id": invoice_item_id,
+                "amount": amount,
+                "description": description,
+                "started_at": started_at,
+                "ended_at": ended_at,
+                "user_id": self.user_id,
+            }
+        )
+    
+    def create_billable_sync(
+            self, 
+            invoice_item_id: int, 
+            amount: float, 
+            description: str, 
+            started_at: str, 
+            ended_at: str
+        ):
+        return asyncio.run(
+            self.create_billable_async(
+                invoice_item_id, 
+                amount, 
+                description, 
+                started_at, 
+                ended_at
+            )
+        )
+
+    async def pay_billable_async(self, invoice_item_id: int):
+        """ 
+            URL : https://sample-domain/api/v1/billable/collect/pay
+
+            # Parameters:
+                - invoice_item_id = the id of invoice item
+        """
+        return await self.request(
+            url=f"{self.BASE_URL}/billable/collect/pay",
+            method=Billing.RequestMethod.POST.value,
+            data={
+                "invoice_item_id": invoice_item_id
+            }
+        )
+    
+    def pay_billable_sync(self, invoice_item_id: int):
+        return asyncio.run(self.pay_billable_async(invoice_item_id))
+    
+    async def collect_billable_async(self, invoice_item_id: int):
+        """ 
+            URL : https://sample-domain/api/v1/billable/collect
+
+            # Parameters:
+                - invoice_item_id = the id of invoice item
+        """
+        return await self.request(
+            url=f"{self.BASE_URL}/billable/collect",
+            method=Billing.RequestMethod.POST.value,
+            data={
+                "invoice_item_id": invoice_item_id
+            }
+        )
+    
+    def collect_billable_sync(self, invoice_item_id: int):
+        return asyncio.run(self.collect_billable_async(invoice_item_id))
