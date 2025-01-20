@@ -30,6 +30,14 @@ class Billing:
 
         self.filters = f"&{filters}" if filters else ""
 
+    @staticmethod
+    def _validate_datetime(due_date: str, date_format: str) -> bool:
+        try:
+            datetime.strptime(due_date, date_format)
+            return True
+        except ValueError:
+            return False
+
     async def get(self, url: str, data: dict = None):
         async with httpx.AsyncClient() as client:
             return await client.get(
