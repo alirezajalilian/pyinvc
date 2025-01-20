@@ -45,7 +45,6 @@ class Billing:
                 headers=self.HEADER,
                 params=data
             )
-            
 
     async def post(self, url: str, data: dict = None) -> httpx.Response:
         async with httpx.AsyncClient() as client:
@@ -54,7 +53,6 @@ class Billing:
                 headers=self.HEADER,
                 json=data
             )
-
 
     async def request(self, url: str, method: int, data: dict = None):
         match method:
@@ -82,13 +80,18 @@ class Billing:
     def invoice_detail_sync(self, *, invoice_id: int) -> Response:
         return asyncio.run(self.invoice_detail_async(invoice_id=invoice_id))
 
-    async def invoice_create_async(self, *, items: List[Dict]) -> Dict:
+    async def invoice_create_async(self, *, items: List[Dict], due_date: str = None) -> Response:
+
+        formatted_due_date = (
+            datetime.now() + timedelta(days=3) if due_date is None else datetime.strptime(due_date, "%Y-%m-%dT%H:%M:%S")
+        ).strftime("%Y-%m-%dT%H:%M:%S")
+
         return await self.request(
             method=Billing.RequestMethod.POST.value,
             url=f"{self.BASE_URL}/invoice",
             data={
                 "user_id": self.user_id,
-                "duedate": (datetime.now() + timedelta(days=3)).strftime("%Y-%m-%dT%H:%M:%S"),
+                "duedate": formatted_due_date,  # noqa
                 "items": items
             }
         )
