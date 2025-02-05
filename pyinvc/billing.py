@@ -280,3 +280,20 @@ class Billing:
 
     def billable_collect_sync(self, invoice_item_id: int):
         return asyncio.run(self.billable_collect_async(invoice_item_id))
+
+    def invoice_update_item_plan_sync(self, item: dict) -> Response:
+        """
+        URL : https://sample-domain/api/v1/item/update/plan
+        :param item: dict
+        :return httpx.Response
+        """
+        if not isinstance(item, dict):
+            raise ValueError("Invalid Item Type")
+        return asyncio.run(self.invoice_update_item_plan_async(item))
+
+    async def invoice_update_item_plan_async(self, item: dict) -> Response:
+        return await self.request(
+            url=f"{self.BASE_URL}/item/update/plan",
+            method=Billing.RequestMethod.POST.value,
+            data=item,
+        )
