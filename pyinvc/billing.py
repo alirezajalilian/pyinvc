@@ -46,7 +46,7 @@ class Billing:
                 params=data
             )
 
-    async def post(self, url: str, data: dict = None) -> httpx.Response:
+    async def post(self, url: str, data: dict = None) -> Response:
         async with httpx.AsyncClient() as client:
             return await client.post(
                 url=url,
@@ -197,7 +197,7 @@ class Billing:
     async def billable_create_async(
             self,
             invoice_item_id: int,
-            amount: float,
+            quantity: int,
             description: str,
             started_at: str,
             ended_at: str
@@ -208,7 +208,7 @@ class Billing:
 
             # Parameters:
                 - invoice_item_id = the id of invoice item  
-                - amount = the amount of billable
+                - quantity = the quantity of billable
                 - description = the description of billable
                 - started_at = the start date of billable in string format
                 - ended_at = the end date of billable in string format
@@ -219,7 +219,7 @@ class Billing:
             method=Billing.RequestMethod.POST.value,
             data={
                 "invoice_item_id": invoice_item_id,
-                "amount": amount,
+                "quantity": quantity,
                 "description": description,
                 "started_at": started_at,
                 "ended_at": ended_at,
@@ -230,7 +230,7 @@ class Billing:
     def billable_create_sync(
             self,
             invoice_item_id: int,
-            amount: float,
+            quantity: int,
             description: str,
             started_at: str,
             ended_at: str
@@ -238,7 +238,7 @@ class Billing:
         return asyncio.run(
             self.billable_create_async(
                 invoice_item_id,
-                amount,
+                quantity,
                 description,
                 started_at,
                 ended_at
