@@ -100,7 +100,7 @@ class Billing:
         date_format = "%Y-%m-%dT%H:%M:%S"
         if due_date and not self._validate_datetime(due_date, date_format):
             raise ValueError(f"Invalid due_date format: {due_date}. Expected format is '{date_format}'.")
-        return asyncio.run(self.invoice_create_async(items=items))
+        return asyncio.run(self.invoice_create_async(items=items, due_date=due_date))
 
     async def add_promotion_async(self, *, invoice_id: int, promotion_data: dict) -> Response:
         return await self.request(

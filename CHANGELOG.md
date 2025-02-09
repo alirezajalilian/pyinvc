@@ -14,3 +14,8 @@
 
 - Added new instance method `invoice_update_item_plan_sync` for update one invoice item.
 - Changed input argument in `billable_create_sync` method - Alter `amount` to `quantity`.
+- 
+### Version 0.1.31 - 2024/02/09
+
+- use `due_date` argument in `invoice_create_async` instance method.
+
