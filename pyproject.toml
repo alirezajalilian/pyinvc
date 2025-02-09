@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pyinvc"
-version = "0.1.30"
+version = "0.1.31"
 description = ""
 authors = ["Alireza <arg274@gmail.com>", "amirredhat <a.charehei@limoo.host>"]
 readme = "README.md"
