@@ -114,18 +114,18 @@ class Billing:
     def add_promotion_sync(self, *, invoice_id: int, promotion_data: dict) -> Response:
         return asyncio.run(self.add_promotion_async(invoice_id=invoice_id, promotion_data=promotion_data))
 
-    async def payment_async(self, *, invoice_id: int, payment_type: str = None) -> Response:
+    async def payment_async(self, *, invoice_id: int, payment_type: str = None, callback_url: str = None) -> Response:
         return await self.request(
             method=Billing.RequestMethod.POST.value,
             url=f"{self.BASE_URL}/payment/{invoice_id}",
             data={
-                "callback_url": f"{config("BILLING_CALLBACK_URL")}/{invoice_id}",
+                "callback_url": f"{callback_url}/{invoice_id}" if callback_url else f"{config("BILLING_CALLBACK_URL")}/{invoice_id}",
                 **({"payment_type": payment_type} if payment_type is not None else {})
             }
         )
 
-    def payment_sync(self, *, invoice_id: int, payment_type: str = None) -> Response:
-        return asyncio.run(self.payment_async(invoice_id=invoice_id, payment_type=payment_type))
+    def payment_sync(self, *, invoice_id: int, payment_type: str = None, callback_url: str = None) -> Response:
+        return asyncio.run(self.payment_async(invoice_id=invoice_id, payment_type=payment_type, callback_url=callback_url))
 
     async def invoice_delete_item_async(self, *, invoice_id: int, item_id: int) -> Response:
         return await self.request(
