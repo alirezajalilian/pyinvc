@@ -24,3 +24,7 @@
 
 - add `callback_url` argument in `payment_sync` instance method.
 
+### Version 0.1.33 - 2024/02/23
+
+- remove `/invoice_id` from `callback_url` in payment.
+
