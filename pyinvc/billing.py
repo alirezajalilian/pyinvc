@@ -21,7 +21,7 @@ class Billing:
         self.HEADER = {
             "Authorization": secret_token or f"Bearer {config("BILLING_SECRET_TOKEN")}",
             "Content-Type": "application/json",
-            "Accept": "application/json"
+            "Accept": "application/json",
         }
         self.user_id = user_id
 
@@ -40,19 +40,11 @@ class Billing:
 
     async def get(self, url: str, data: dict = None):
         async with httpx.AsyncClient() as client:
-            return await client.get(
-                url=url,
-                headers=self.HEADER,
-                params=data
-            )
+            return await client.get(url=url, headers=self.HEADER, params=data)
 
     async def post(self, url: str, data: dict = None) -> Response:
         async with httpx.AsyncClient() as client:
-            return await client.post(
-                url=url,
-                headers=self.HEADER,
-                json=data
-            )
+            return await client.post(url=url, headers=self.HEADER, json=data)
 
     async def request(self, url: str, method: int, data: dict = None):
         match method:
@@ -81,7 +73,6 @@ class Billing:
         return asyncio.run(self.invoice_detail_async(invoice_id=invoice_id))
 
     async def invoice_create_async(self, *, items: List[Dict], due_date: str = None) -> Response:
-
         formatted_due_date = (
             datetime.now() + timedelta(days=3) if due_date is None else datetime.strptime(due_date, "%Y-%m-%dT%H:%M:%S")
         ).strftime("%Y-%m-%dT%H:%M:%S")
@@ -92,8 +83,8 @@ class Billing:
             data={
                 "user_id": self.user_id,
                 "duedate": formatted_due_date,  # noqa
-                "items": items
-            }
+                "items": items,
+            },
         )
 
     def invoice_create_sync(self, *, items: List[Dict], due_date: str = None) -> Response:
@@ -106,9 +97,7 @@ class Billing:
         return await self.request(
             method=Billing.RequestMethod.POST.value,
             url=f"{self.BASE_URL}/item/{invoice_id}",
-            data={
-                "items": [promotion_data]
-            }
+            data={"items": [promotion_data]},
         )
 
     def add_promotion_sync(self, *, invoice_id: int, promotion_data: dict) -> Response:
@@ -119,18 +108,19 @@ class Billing:
             method=Billing.RequestMethod.POST.value,
             url=f"{self.BASE_URL}/payment/{invoice_id}",
             data={
-                "callback_url": f"{callback_url}/{invoice_id}" if callback_url else f"{config("BILLING_CALLBACK_URL")}/{invoice_id}",
-                **({"payment_type": payment_type} if payment_type is not None else {})
-            }
+                "callback_url": f"{callback_url}" if callback_url else f"{config("BILLING_CALLBACK_URL")}",
+                **({"payment_type": payment_type} if payment_type is not None else {}),
+            },
         )
 
     def payment_sync(self, *, invoice_id: int, payment_type: str = None, callback_url: str = None) -> Response:
-        return asyncio.run(self.payment_async(invoice_id=invoice_id, payment_type=payment_type, callback_url=callback_url))
+        return asyncio.run(
+            self.payment_async(invoice_id=invoice_id, payment_type=payment_type, callback_url=callback_url)
+        )
 
     async def invoice_delete_item_async(self, *, invoice_id: int, item_id: int) -> Response:
         return await self.request(
-            method=Billing.RequestMethod.POST.value,
-            url=f"{self.BASE_URL}/item/{invoice_id}/{item_id}"
+            method=Billing.RequestMethod.POST.value, url=f"{self.BASE_URL}/item/{invoice_id}/{item_id}"
         )
 
     def invoice_delete_item_sync(self, *, invoice_id: int, item_id: int) -> Response:
@@ -140,7 +130,7 @@ class Billing:
         return await self.request(
             method=Billing.RequestMethod.POST.value,
             url=f"{self.BASE_URL}/invoice/settel",  # noqa
-            data={"invoice_id": invoice_id}
+            data={"invoice_id": invoice_id},
         )
 
     def settle_sync(self, *, invoice_id: int) -> Response:
@@ -149,7 +139,7 @@ class Billing:
     async def transactions_async(self, *, invoice_id: int) -> Response:
         return await self.request(
             method=Billing.RequestMethod.GET.value,
-            url=f"{self.BASE_URL}/transaction?filters[invoice_id][$eq]={invoice_id}"
+            url=f"{self.BASE_URL}/transaction?filters[invoice_id][$eq]={invoice_id}",
         )
 
     def transactions_sync(self, *, invoice_id: int) -> Response:
@@ -161,17 +151,14 @@ class Billing:
             url=f"{self.BASE_URL}/credit/wallet",
             data={
                 "user_id": self.user_id,
-            }
+            },
         )
 
     def wallet_create_sync(self):
         return asyncio.run(self.wallet_create_async())
 
     async def wallet_detail_async(self):
-        return await self.request(
-            method=Billing.RequestMethod.GET.value,
-            url=f"{self.BASE_URL}/credit/{self.user_id}"
-        )
+        return await self.request(method=Billing.RequestMethod.GET.value, url=f"{self.BASE_URL}/credit/{self.user_id}")
 
     def wallet_detail_sync(self):
         return asyncio.run(self.wallet_detail_async())
@@ -181,12 +168,7 @@ class Billing:
             return await self.request(
                 method=Billing.RequestMethod.POST.value,
                 url=f"{self.BASE_URL}/credit",
-                data={
-                    "user_id": self.user_id,
-                    "amount": str(amount),
-                    "description": description,
-                    "type": type_
-                }
+                data={"user_id": self.user_id, "amount": str(amount), "description": description, "type": type_},
             )
 
         raise ValueError("invalid type")
@@ -195,23 +177,18 @@ class Billing:
         return asyncio.run(self.credit_transaction_create_async(amount, type_, description))
 
     async def billable_create_async(
-            self,
-            invoice_item_id: int,
-            quantity: int,
-            description: str,
-            started_at: str,
-            ended_at: str
+        self, invoice_item_id: int, quantity: int, description: str, started_at: str, ended_at: str
     ):
         """
-            URL : https://sample-domain/api/v1/billable
-            Method : POST    
+        URL : https://sample-domain/api/v1/billable
+        Method : POST
 
-            # Parameters:
-                - invoice_item_id = the id of invoice item  
-                - quantity = the quantity of billable
-                - description = the description of billable
-                - started_at = the start date of billable in string format
-                - ended_at = the end date of billable in string format
+        # Parameters:
+            - invoice_item_id = the id of invoice item
+            - quantity = the quantity of billable
+            - description = the description of billable
+            - started_at = the start date of billable in string format
+            - ended_at = the end date of billable in string format
         """
 
         return await self.request(
@@ -224,58 +201,41 @@ class Billing:
                 "started_at": started_at,
                 "ended_at": ended_at,
                 "user_id": self.user_id,
-            }
+            },
         )
 
     def billable_create_sync(
-            self,
-            invoice_item_id: int,
-            quantity: int,
-            description: str,
-            started_at: str,
-            ended_at: str
+        self, invoice_item_id: int, quantity: int, description: str, started_at: str, ended_at: str
     ):
-        return asyncio.run(
-            self.billable_create_async(
-                invoice_item_id,
-                quantity,
-                description,
-                started_at,
-                ended_at
-            )
-        )
+        return asyncio.run(self.billable_create_async(invoice_item_id, quantity, description, started_at, ended_at))
 
     async def billable_pay_async(self, invoice_item_id: int):
-        """ 
-            URL : https://sample-domain/api/v1/billable/collect/pay
+        """
+        URL : https://sample-domain/api/v1/billable/collect/pay
 
-            # Parameters:
-                - invoice_item_id = the id of invoice item
+        # Parameters:
+            - invoice_item_id = the id of invoice item
         """
         return await self.request(
             url=f"{self.BASE_URL}/billable/collect/pay",
             method=Billing.RequestMethod.POST.value,
-            data={
-                "invoice_item_id": invoice_item_id
-            }
+            data={"invoice_item_id": invoice_item_id},
         )
 
     def billable_pay_sync(self, invoice_item_id: int):
         return asyncio.run(self.billable_pay_async(invoice_item_id))
 
     async def billable_collect_async(self, invoice_item_id: int):
-        """ 
-            URL : https://sample-domain/api/v1/billable/collect
+        """
+        URL : https://sample-domain/api/v1/billable/collect
 
-            # Parameters:
-                - invoice_item_id = the id of invoice item
+        # Parameters:
+            - invoice_item_id = the id of invoice item
         """
         return await self.request(
             url=f"{self.BASE_URL}/billable/collect",
             method=Billing.RequestMethod.POST.value,
-            data={
-                "invoice_item_id": invoice_item_id
-            }
+            data={"invoice_item_id": invoice_item_id},
         )
 
     def billable_collect_sync(self, invoice_item_id: int):
