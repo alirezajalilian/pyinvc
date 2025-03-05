@@ -28,3 +28,6 @@
 
 - remove `/invoice_id` from `callback_url` in payment.
 
+### Version 0.1.34 - 2024/03/05
+
+- add `currency` argument to `invoice_create_sync` instance method.
