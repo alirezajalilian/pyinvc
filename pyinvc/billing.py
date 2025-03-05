@@ -72,7 +72,7 @@ class Billing:
     def invoice_detail_sync(self, *, invoice_id: int) -> Response:
         return asyncio.run(self.invoice_detail_async(invoice_id=invoice_id))
 
-    async def invoice_create_async(self, *, items: List[Dict], due_date: str = None) -> Response:
+    async def invoice_create_async(self, *, items: List[Dict], due_date: str = None, currency: str = "IRR") -> Response:
         formatted_due_date = (
             datetime.now() + timedelta(days=3) if due_date is None else datetime.strptime(due_date, "%Y-%m-%dT%H:%M:%S")
         ).strftime("%Y-%m-%dT%H:%M:%S")
@@ -83,15 +83,16 @@ class Billing:
             data={
                 "user_id": self.user_id,
                 "duedate": formatted_due_date,  # noqa
+                "currency": currency.upper(),
                 "items": items,
             },
         )
 
-    def invoice_create_sync(self, *, items: List[Dict], due_date: str = None) -> Response:
+    def invoice_create_sync(self, *, items: List[Dict], due_date: str = None, currency: str = None) -> Response:
         date_format = "%Y-%m-%dT%H:%M:%S"
         if due_date and not self._validate_datetime(due_date, date_format):
             raise ValueError(f"Invalid due_date format: {due_date}. Expected format is '{date_format}'.")
-        return asyncio.run(self.invoice_create_async(items=items, due_date=due_date))
+        return asyncio.run(self.invoice_create_async(items=items, due_date=due_date, currency=currency))
 
     async def add_promotion_async(self, *, invoice_id: int, promotion_data: dict) -> Response:
         return await self.request(
@@ -163,7 +164,7 @@ class Billing:
     def wallet_detail_sync(self):
         return asyncio.run(self.wallet_detail_async())
 
-    async def credit_transaction_create_async(self, amount: int, type_: str, description: str = ""):
+    async def credit_transaction_create_async(self, amount: int, type_: str, description: str = "") -> Response:
         if type_ in {"credit", "debit"}:
             return await self.request(
                 method=Billing.RequestMethod.POST.value,
@@ -173,12 +174,12 @@ class Billing:
 
         raise ValueError("invalid type")
 
-    def credit_transaction_create_sync(self, amount: int, type_: str, description: str = ""):
+    def credit_transaction_create_sync(self, amount: int, type_: str, description: str = "") -> Response:
         return asyncio.run(self.credit_transaction_create_async(amount, type_, description))
 
     async def billable_create_async(
-        self, invoice_item_id: int, quantity: int, description: str, started_at: str, ended_at: str
-    ):
+            self, invoice_item_id: int, quantity: int, description: str, started_at: str, ended_at: str
+    ) -> Response:
         """
         URL : https://sample-domain/api/v1/billable
         Method : POST
@@ -205,11 +206,11 @@ class Billing:
         )
 
     def billable_create_sync(
-        self, invoice_item_id: int, quantity: int, description: str, started_at: str, ended_at: str
-    ):
+            self, invoice_item_id: int, quantity: int, description: str, started_at: str, ended_at: str
+    ) -> Response:
         return asyncio.run(self.billable_create_async(invoice_item_id, quantity, description, started_at, ended_at))
 
-    async def billable_pay_async(self, invoice_item_id: int):
+    async def billable_pay_async(self, invoice_item_id: int) -> Response:
         """
         URL : https://sample-domain/api/v1/billable/collect/pay
 
@@ -222,10 +223,10 @@ class Billing:
             data={"invoice_item_id": invoice_item_id},
         )
 
-    def billable_pay_sync(self, invoice_item_id: int):
+    def billable_pay_sync(self, invoice_item_id: int) -> Response:
         return asyncio.run(self.billable_pay_async(invoice_item_id))
 
-    async def billable_collect_async(self, invoice_item_id: int):
+    async def billable_collect_async(self, invoice_item_id: int) -> Response:
         """
         URL : https://sample-domain/api/v1/billable/collect
 
@@ -238,7 +239,7 @@ class Billing:
             data={"invoice_item_id": invoice_item_id},
         )
 
-    def billable_collect_sync(self, invoice_item_id: int):
+    def billable_collect_sync(self, invoice_item_id: int) -> Response:
         return asyncio.run(self.billable_collect_async(invoice_item_id))
 
     def invoice_update_item_plan_sync(self, item: dict) -> Response:
