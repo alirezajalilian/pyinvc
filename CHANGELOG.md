@@ -31,3 +31,7 @@
 ### Version 0.1.34 - 2024/03/05
 
 - add `currency` argument to `invoice_create_sync` instance method.
+
+### Version 0.1.36 - 2024/03/09
+
+- add `lang` argument to `payment_sync` instance method.
