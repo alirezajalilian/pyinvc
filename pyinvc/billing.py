@@ -104,19 +104,24 @@ class Billing:
     def add_promotion_sync(self, *, invoice_id: int, promotion_data: dict) -> Response:
         return asyncio.run(self.add_promotion_async(invoice_id=invoice_id, promotion_data=promotion_data))
 
-    async def payment_async(self, *, invoice_id: int, payment_type: str = None, callback_url: str = None) -> Response:
+    async def payment_async(
+        self, *, invoice_id: int, payment_type: str = None, callback_url: str = None, lang: str = "fa"
+    ) -> Response:
         return await self.request(
             method=Billing.RequestMethod.POST.value,
             url=f"{self.BASE_URL}/payment/{invoice_id}",
             data={
                 "callback_url": f"{callback_url}" if callback_url else f"{config("BILLING_CALLBACK_URL")}",
                 **({"payment_type": payment_type} if payment_type is not None else {}),
+                "lang": lang,
             },
         )
 
-    def payment_sync(self, *, invoice_id: int, payment_type: str = None, callback_url: str = None) -> Response:
+    def payment_sync(
+        self, *, invoice_id: int, payment_type: str = None, callback_url: str = None, lang: str = "fa"
+    ) -> Response:
         return asyncio.run(
-            self.payment_async(invoice_id=invoice_id, payment_type=payment_type, callback_url=callback_url)
+            self.payment_async(invoice_id=invoice_id, payment_type=payment_type, callback_url=callback_url, lang=lang)
         )
 
     async def invoice_delete_item_async(self, *, invoice_id: int, item_id: int) -> Response:
@@ -178,7 +183,7 @@ class Billing:
         return asyncio.run(self.credit_transaction_create_async(amount, type_, description))
 
     async def billable_create_async(
-            self, invoice_item_id: int, quantity: int, description: str, started_at: str, ended_at: str
+        self, invoice_item_id: int, quantity: int, description: str, started_at: str, ended_at: str
     ) -> Response:
         """
         URL : https://sample-domain/api/v1/billable
@@ -206,7 +211,7 @@ class Billing:
         )
 
     def billable_create_sync(
-            self, invoice_item_id: int, quantity: int, description: str, started_at: str, ended_at: str
+        self, invoice_item_id: int, quantity: int, description: str, started_at: str, ended_at: str
     ) -> Response:
         return asyncio.run(self.billable_create_async(invoice_item_id, quantity, description, started_at, ended_at))
 
